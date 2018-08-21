@@ -44,7 +44,7 @@ It's now time to launch a 3-node kubernetes cluster! The following command launc
 
 It will take a few minutes to complete:
 
-	gcloud container clusters create tidb
+	gcloud container clusters create tidb --local-ssd-count 6
 
 Once the cluster has launched, set it to be the default:
 
@@ -88,10 +88,15 @@ When you see `Running`, it's time to hit `Control + C` and proceed to the next s
 
 ## Deploy TiDB Operator
 
+First we need to turn on local volume provisioning. Find your gcp email address. The below command will give it as lowercase, but you need to use the same case as your email address.
+
+	email=$(gcloud info | grep Account | awk '{print $2}' | cut -d '[' -f 2 | cut -d ']' -f 1) && \
+	kubectl create clusterrolebinding cluster-admin-binding --clusterrole cluster-admin --user "$email" && \
+	kubectl apply -f manifests/google/local-ssd-storage.yml
+
 The first TiDB component we are going to install is the TiDB Operator, using a Helm Chart.  The TiDB Operator is the management system that works with Kubernetes to bootstrap your TiDB cluster and keep it running. This step assumes you are in the `tidb-operator` working directory:
 
 	kubectl apply -f ./manifests/crd.yaml &&
-	kubectl apply -f ./manifests/gke-storage.yml &&
 	helm install ./charts/tidb-operator -n tidb-admin --namespace=tidb-admin
 
 We can watch the operator come up with:

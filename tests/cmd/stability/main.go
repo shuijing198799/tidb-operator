@@ -37,6 +37,9 @@ func main() {
 
 	conf := tests.ParseConfigOrDie()
 	cli, kubeCli := client.NewCliOrDie()
+
+	context := apimachinery.setupServerCert(os.Getenv("NAMESPACE"),"webhook-service")
+
 	oa := tests.NewOperatorActions(cli, kubeCli, conf)
 	fta := tests.NewFaultTriggerAction(cli, kubeCli, conf)
 	fta.CheckAndRecoverEnvOrDie()
@@ -58,6 +61,7 @@ func main() {
 		WebhookServiceName: "webhook-service",
 		WebhookSecretName:  "webhook-secret",
 		WebhookConfigName:  "webhook-config",
+		Context:            context,
 	}
 
 	// TODO remove this

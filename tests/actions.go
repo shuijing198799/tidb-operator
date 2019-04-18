@@ -25,11 +25,13 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"crypto/tls"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang/glog"
 	pingcapErrors "github.com/pingcap/errors"
 	"github.com/pingcap/kvproto/pkg/metapb"
+	"github.com/pingcap/tidb-operator/tests/pkg/apimachinery"
 	"github.com/pingcap/tidb-operator/tests/pkg/webhook"
 	admissionV1beta1 "k8s.io/api/admissionregistration/v1beta1"
 	"k8s.io/api/apps/v1beta1"
@@ -121,7 +123,7 @@ type OperatorActions interface {
 	RegisterWebHookAndService(info *OperatorConfig) error
 	RegisterWebHookAndServiceOrDie(info *OperatorConfig)
 	CleanWebHookAndService(info *OperatorConfig) error
-	StartValidatingAdmissionWebhookServerOrDie()
+	StartValidatingAdmissionWebhookServerOrDie(info *OperatorConfig)
 }
 
 type operatorActions struct {
@@ -144,6 +146,7 @@ type OperatorConfig struct {
 	WebhookServiceName string
 	WebhookSecretName  string
 	WebhookConfigName  string
+	Context            *apimachinery.CertContext
 }
 
 type TidbClusterConfig struct {
@@ -166,6 +169,16 @@ type TidbClusterConfig struct {
 	UserName         string
 	InitSecretName   string
 	BackupSecretName string
+}
+
+func (oi *OperatorConfig) ConfigTLS() *tls.Config {
+	sCert, err := tls.LoadX509KeyPair(string(oi.Context.Cert), string(oi.Context.Key))
+	if err != nil {
+		glog.Fatal(err)
+	}
+	return &tls.Config{
+		Certificates: []tls.Certificate{sCert},
+	}
 }
 
 func (tc *TidbClusterConfig) BackupHelmSetString(m map[string]string) string {
@@ -1859,23 +1872,8 @@ func (oa *operatorActions) RegisterWebHookAndService(info *OperatorConfig) error
 
 	namespace := os.Getenv("NAMESPACE")
 	configName := info.WebhookConfigName
-	filePath := "/webhook.local.config/certificates/ca.crt"
 
-	fd, err := os.Open(filePath)
-	if err != nil {
-		glog.Errorf("file can't open file path %s err %v", filePath, err)
-		return err
-	}
-	defer fd.Close()
-
-	ca, err := ioutil.ReadAll(fd)
-
-	if err != nil {
-		glog.Errorf("file can't read file path %s err %v", filePath, err)
-		return err
-	}
-
-	_, err = client.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().Create(&admissionV1beta1.ValidatingWebhookConfiguration{
+	_, err := client.AdmissionregistrationV1beta1().ValidatingWebhookConfigurations().Create(&admissionV1beta1.ValidatingWebhookConfiguration{
 		ObjectMeta: metav1.ObjectMeta{
 			Name: configName,
 		},
@@ -1896,7 +1894,7 @@ func (oa *operatorActions) RegisterWebHookAndService(info *OperatorConfig) error
 						Name:      info.WebhookServiceName,
 						Path:      strPtr("/pods"),
 					},
-					CABundle: ca,
+					CABundle: info.Context.SigningCert,
 				},
 			},
 		},
@@ -1993,11 +1991,11 @@ func (oa *operatorActions) drainerHealth(info *TidbClusterConfig, hostName strin
 	return len(healths.PumpPos) > 0 && healths.Synced
 }
 
-func (oa *operatorActions) StartValidatingAdmissionWebhookServerOrDie() {
+func (oa *operatorActions) StartValidatingAdmissionWebhookServerOrDie(info *OperatorConfig) {
 	http.HandleFunc("/pods", webhook.ServePods)
 	server := &http.Server{
 		Addr:      ":443",
-		TLSConfig: oa.cfg.ConfigTLS(),
+		TLSConfig: info.ConfigTLS(),
 	}
 	err := server.ListenAndServeTLS("", "")
 	if err != nil {

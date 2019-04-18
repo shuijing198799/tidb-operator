@@ -15,15 +15,15 @@ package main
 
 import (
 	"fmt"
-	"os"
 	_ "net/http/pprof"
+	"os"
 
 	"github.com/golang/glog"
-	//	"github.com/jinzhu/copier"
+	"github.com/jinzhu/copier"
 	"k8s.io/apiserver/pkg/util/logs"
 
 	"github.com/pingcap/tidb-operator/tests"
-	//	"github.com/pingcap/tidb-operator/tests/backup"
+	"github.com/pingcap/tidb-operator/tests/backup"
 	"github.com/pingcap/tidb-operator/tests/pkg/apimachinery"
 	"github.com/pingcap/tidb-operator/tests/pkg/client"
 )
@@ -40,7 +40,7 @@ func main() {
 
 	cli, kubeCli := client.NewCliOrDie()
 
-	context := apimachinery.SetupServerCert(os.Getenv("NAMESPACE"),"webhook-service")
+	context := apimachinery.SetupServerCert(os.Getenv("NAMESPACE"), "webhook-service")
 
 	oa := tests.NewOperatorActions(cli, kubeCli, conf)
 
@@ -49,7 +49,8 @@ func main() {
 		ReleaseName:        "operator",
 		Image:              conf.OperatorImage,
 		Tag:                conf.OperatorTag,
-		SchedulerImage:     "gcr.io/google-containers/hyperkube",
+		SchedulerImage:     "mirantis/hypokube",
+		SchedulerTag:       "final",
 		LogLevel:           "2",
 		WebhookServiceName: "webhook-service",
 		WebhookSecretName:  "webhook-secret",
@@ -149,10 +150,7 @@ func main() {
 	}
 
 	// deploy tidbclusters
-	for i, clusterInfo := range clusterInfos {
-		if i == 1 {
-			continue
-		}
+	for _, clusterInfo := range clusterInfos {
 		if err = oa.CleanTidbCluster(clusterInfo); err != nil {
 			glog.Fatal(err)
 		}
@@ -161,10 +159,7 @@ func main() {
 		}
 	}
 
-	for i, clusterInfo := range clusterInfos {
-		if i == 1 {
-			continue
-		}
+	for _, clusterInfo := range clusterInfos {
 		if err = oa.CheckTidbClusterStatus(clusterInfo); err != nil {
 			glog.Fatal(err)
 		}
@@ -176,19 +171,13 @@ func main() {
 	// upgrade test
 	upgradeTidbVersions := conf.GetUpgradeTidbVersions()
 	for _, upgradeTidbVersion := range upgradeTidbVersions {
-		for i, clusterInfo := range clusterInfos {
-			if i == 1 {
-				continue
-			}
+		for _, clusterInfo := range clusterInfos {
 			clusterInfo = clusterInfo.UpgradeAll(upgradeTidbVersion)
 			if err = oa.UpgradeTidbCluster(clusterInfo); err != nil {
 				glog.Fatal(err)
 			}
 		}
-		for i, clusterInfo := range clusterInfos {
-			if i == 1 {
-				continue
-			}
+		for _, clusterInfo := range clusterInfos {
 			if err = oa.CheckTidbClusterStatus(clusterInfo); err != nil {
 				glog.Fatal(err)
 			}
@@ -198,75 +187,75 @@ func main() {
 	// after upgrade cluster, clean webhook
 	oa.CleanWebHookAndService(operatorInfo)
 
-	/*	for _, clusterInfo := range clusterInfos {
-			clusterInfo = clusterInfo.ScaleTiDB(3).ScaleTiKV(5).ScalePD(5)
-			if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-		for _, clusterInfo := range clusterInfos {
-			if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-
-		for _, clusterInfo := range clusterInfos {
-			clusterInfo = clusterInfo.ScalePD(3)
-			if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-		for _, clusterInfo := range clusterInfos {
-			if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-
-		for _, clusterInfo := range clusterInfos {
-			clusterInfo = clusterInfo.ScaleTiKV(3)
-			if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-		for _, clusterInfo := range clusterInfos {
-			if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-
-		for _, clusterInfo := range clusterInfos {
-			clusterInfo = clusterInfo.ScaleTiDB(1)
-			if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-		for _, clusterInfo := range clusterInfos {
-			if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
-				glog.Fatal(err)
-			}
-		}
-
-		// backup and restore
-		backupClusterInfo := clusterInfos[0]
-		restoreClusterInfo := &tests.TidbClusterConfig{}
-		copier.Copy(restoreClusterInfo, backupClusterInfo)
-		restoreClusterInfo.ClusterName = restoreClusterInfo.ClusterName + "-other"
-		restoreClusterInfo.InitSecretName = fmt.Sprintf("%s-set-secret", restoreClusterInfo.ClusterName)
-		restoreClusterInfo.BackupSecretName = fmt.Sprintf("%s-backup-secret", restoreClusterInfo.ClusterName)
-
-		if err = oa.CleanTidbCluster(restoreClusterInfo); err != nil {
+	for _, clusterInfo := range clusterInfos {
+		clusterInfo = clusterInfo.ScaleTiDB(3).ScaleTiKV(5).ScalePD(5)
+		if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
 			glog.Fatal(err)
 		}
-		if err = oa.DeployTidbCluster(restoreClusterInfo); err != nil {
+	}
+	for _, clusterInfo := range clusterInfos {
+		if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
 			glog.Fatal(err)
 		}
-		if err = oa.CheckTidbClusterStatus(restoreClusterInfo); err != nil {
+	}
+
+	for _, clusterInfo := range clusterInfos {
+		clusterInfo = clusterInfo.ScalePD(3)
+		if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
 			glog.Fatal(err)
 		}
-
-		backupCase := backup.NewBackupCase(oa, backupClusterInfo, restoreClusterInfo)
-
-		if err := backupCase.Run(); err != nil {
+	}
+	for _, clusterInfo := range clusterInfos {
+		if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
 			glog.Fatal(err)
-		}*/
+		}
+	}
+
+	for _, clusterInfo := range clusterInfos {
+		clusterInfo = clusterInfo.ScaleTiKV(3)
+		if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
+			glog.Fatal(err)
+		}
+	}
+	for _, clusterInfo := range clusterInfos {
+		if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
+			glog.Fatal(err)
+		}
+	}
+
+	for _, clusterInfo := range clusterInfos {
+		clusterInfo = clusterInfo.ScaleTiDB(1)
+		if err := oa.ScaleTidbCluster(clusterInfo); err != nil {
+			glog.Fatal(err)
+		}
+	}
+	for _, clusterInfo := range clusterInfos {
+		if err := oa.CheckTidbClusterStatus(clusterInfo); err != nil {
+			glog.Fatal(err)
+		}
+	}
+
+	// backup and restore
+	backupClusterInfo := clusterInfos[0]
+	restoreClusterInfo := &tests.TidbClusterConfig{}
+	copier.Copy(restoreClusterInfo, backupClusterInfo)
+	restoreClusterInfo.ClusterName = restoreClusterInfo.ClusterName + "-other"
+	restoreClusterInfo.InitSecretName = fmt.Sprintf("%s-set-secret", restoreClusterInfo.ClusterName)
+	restoreClusterInfo.BackupSecretName = fmt.Sprintf("%s-backup-secret", restoreClusterInfo.ClusterName)
+
+	if err = oa.CleanTidbCluster(restoreClusterInfo); err != nil {
+		glog.Fatal(err)
+	}
+	if err = oa.DeployTidbCluster(restoreClusterInfo); err != nil {
+		glog.Fatal(err)
+	}
+	if err = oa.CheckTidbClusterStatus(restoreClusterInfo); err != nil {
+		glog.Fatal(err)
+	}
+
+	backupCase := backup.NewBackupCase(oa, backupClusterInfo, restoreClusterInfo)
+
+	if err := backupCase.Run(); err != nil {
+		glog.Fatal(err)
+	}
 }

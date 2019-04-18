@@ -17,10 +17,12 @@ import (
 	"fmt"
 	"net/http"
 	_ "net/http/pprof"
+	"os"
 	"time"
 
 	"github.com/golang/glog"
 	"github.com/jinzhu/copier"
+	"github.com/pingcap/tidb-operator/tests/pkg/apimachinery"
 	"github.com/pingcap/tidb-operator/tests/pkg/client"
 	"k8s.io/apiserver/pkg/util/logs"
 
@@ -38,7 +40,7 @@ func main() {
 	conf := tests.ParseConfigOrDie()
 	cli, kubeCli := client.NewCliOrDie()
 
-	context := apimachinery.setupServerCert(os.Getenv("NAMESPACE"),"webhook-service")
+	context := apimachinery.SetupServerCert(os.Getenv("NAMESPACE"), "webhook-service")
 
 	oa := tests.NewOperatorActions(cli, kubeCli, conf)
 	fta := tests.NewFaultTriggerAction(cli, kubeCli, conf)
@@ -46,9 +48,6 @@ func main() {
 
 	tidbVersion := conf.GetTiDBVersionOrDie()
 	upgardeTiDBVersions := conf.GetUpgradeTidbVersionsOrDie()
-
-	// start a http server in goruntine
-	go oa.StartValidatingAdmissionWebhookServerOrDie()
 
 	// operator config
 	operatorCfg := &tests.OperatorConfig{
@@ -63,6 +62,9 @@ func main() {
 		WebhookConfigName:  "webhook-config",
 		Context:            context,
 	}
+
+	// start a http server in goruntine
+	go oa.StartValidatingAdmissionWebhookServerOrDie(operatorCfg)
 
 	// TODO remove this
 	// create database and table and insert a column for test backup and restore

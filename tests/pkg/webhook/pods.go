@@ -103,7 +103,7 @@ func admitPods(ar v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 			glog.Errorf("tidb is ddl owner, can't be deleted namespace %s name %s", nameSpace, name)
 			os.Exit(3)
 		} else {
-			glog.Infof("savely delete pod namespace %s name %s content [%s]", nameSpace, name, string(content))
+			glog.Infof("savely delete pod namespace %s name %s content %s", nameSpace, name, string(content))
 		}
 
 	} else if pod.Labels["app.kubernetes.io/component"] == "pd" {
@@ -128,7 +128,7 @@ func admitPods(ar v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 			glog.Errorf("pd is leader, can't be deleted namespace %s name %s", nameSpace, name)
 			os.Exit(3)
 		} else {
-			glog.Infof("savely delete pod namespace %s name %s content [%s]", nameSpace, string(content))
+			glog.Infof("savely delete pod namespace %s name %s leader name %s", nameSpace, name, leader.Name)
 		}
 
 	} else if pod.Labels["app.kubernetes.io/component"] == "tikv" {

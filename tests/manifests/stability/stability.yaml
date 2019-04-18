@@ -53,9 +53,6 @@ spec:
     - name: config
       readOnly: true
       mountPath: /etc/tidb-operator-stability
-    - name: webhook-certs
-      readOnly: true
-      mountPath: /webhook.local.config/certificates
     env:
     - name: MY_NODE_NAME
       valueFrom:

@@ -14,6 +14,7 @@
 package tests
 
 import (
+	"crypto/tls"
 	"database/sql"
 	"encoding/json"
 	"fmt"
@@ -25,7 +26,6 @@ import (
 	"strconv"
 	"strings"
 	"time"
-	"crypto/tls"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang/glog"
@@ -170,7 +170,7 @@ type TidbClusterConfig struct {
 }
 
 func (oi *OperatorConfig) ConfigTLS() *tls.Config {
-	sCert, err := tls.LoadX509KeyPair(string(oi.Context.Cert), string(oi.Context.Key))
+	sCert, err := tls.X509KeyPair(oi.Context.Cert, oi.Context.Key)
 	if err != nil {
 		glog.Fatal(err)
 	}

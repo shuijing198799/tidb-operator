@@ -2,10 +2,10 @@ package apimachinery
 
 import (
 	"crypto/x509"
-	"io/ioutil"
-	"os"
 	"github.com/golang/glog"
+	"io/ioutil"
 	"k8s.io/client-go/util/cert"
+	"os"
 )
 
 type CertContext struct {

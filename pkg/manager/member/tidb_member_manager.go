@@ -169,7 +169,7 @@ func (tmm *tidbMemberManager) syncTiDBStatefulSetForTidbCluster(tc *v1alpha1.Tid
 		}
 	}
 
-	if !statefulSetEqual(*newTiDBSet, *oldTiDBSet) || tc.Status.TiDB.Phase == v1alpha1.UpgradePhase {
+	if !statefulSetEqual(*newTiDBSet, *oldTiDBSet) {
 		set := *oldTiDBSet
 		set.Spec.Template = newTiDBSet.Spec.Template
 		*set.Spec.Replicas = *newTiDBSet.Spec.Replicas
@@ -179,12 +179,6 @@ func (tmm *tidbMemberManager) syncTiDBStatefulSetForTidbCluster(tc *v1alpha1.Tid
 			return err
 		}
 		_, err = tmm.setControl.UpdateStatefulSet(tc, &set)
-
-		// if err is IsNotAcceptable, convert it to requeue error.
-		if apierrors.IsNotAcceptable(err) {
-			return controller.RequeueErrorf(err.Error())
-		}
-
 		return err
 	}
 

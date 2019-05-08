@@ -15,6 +15,7 @@ package cmd
 
 import (
 	"flag"
+	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/version"
 	"io"
 
 	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/completion"
@@ -23,6 +24,7 @@ import (
 	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/get"
 	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/info"
 	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/list"
+	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/upinfo"
 	"github.com/pingcap/tidb-operator/pkg/tkctl/cmd/use"
 	"github.com/pingcap/tidb-operator/pkg/tkctl/config"
 	"github.com/spf13/cobra"
@@ -67,6 +69,8 @@ func NewTkcCommand(streams genericclioptions.IOStreams) *cobra.Command {
 				get.NewCmdGet(tkcContext, streams),
 				info.NewCmdInfo(tkcContext, streams),
 				use.NewCmdUse(tkcContext, streams),
+				version.NewCmdVersion(tkcContext, streams.Out),
+				upinfo.NewCmdUpInfo(tkcContext, streams),
 			},
 		},
 		{

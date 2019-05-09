@@ -24,9 +24,7 @@ import (
 	"github.com/pingcap/tidb-operator/pkg/webhook/util"
 	"k8s.io/api/admission/v1beta1"
 	apps "k8s.io/api/apps/v1beta1"
-	k8serrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 func AdmitStatefulSets(ar v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
@@ -74,7 +72,7 @@ func AdmitStatefulSets(ar v1beta1.AdmissionReview) *v1beta1.AdmissionResponse {
 
 			if (*set.Spec.UpdateStrategy.RollingUpdate.Partition) <= int32(partition) && tc.Status.TiDB.Phase == v1alpha1.UpgradePhase {
 				glog.Infof("set has been protect by annotations name %s namespace %s", name, namespace)
-				return util.ARFail(k8serrors.NewConflict(schema.GroupResource{Resource: "statefulset"}, "webhook", errors.New("protect by annotation")))
+				return util.ARFail(errors.New("protect by annotation"))
 			}
 		}
 	}

@@ -1,3 +1,16 @@
+// Copyright 2018 PingCAP, Inc.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 package route
 
 import (
@@ -30,12 +43,12 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitFunc) {
 		if data, err := ioutil.ReadAll(r.Body); err == nil {
 			body = data
 		} else {
-			responseAdmissionReview.Response = util.ToAdmissionResponse(err)
+			responseAdmissionReview.Response = util.ARFail(err)
 			goto returnData
 		}
 	} else {
 		err := errors.New("request body is nil!")
-		responseAdmissionReview.Response = util.ToAdmissionResponse(err)
+		responseAdmissionReview.Response = util.ARFail(err)
 		goto returnData
 	}
 
@@ -43,13 +56,13 @@ func serve(w http.ResponseWriter, r *http.Request, admit admitFunc) {
 	contentType = r.Header.Get("Content-Type")
 	if contentType != "application/json" {
 		err := errors.New("expect application/json")
-		responseAdmissionReview.Response = util.ToAdmissionResponse(err)
+		responseAdmissionReview.Response = util.ARFail(err)
 		goto returnData
 	}
 
 	// The AdmissionReview that was sent to the webhook
 	if _, _, err := deserializer.Decode(body, nil, &requestedAdmissionReview); err != nil {
-		responseAdmissionReview.Response = util.ToAdmissionResponse(err)
+		responseAdmissionReview.Response = util.ARFail(err)
 	} else {
 		// pass to admitFunc
 		responseAdmissionReview.Response = admit(requestedAdmissionReview)

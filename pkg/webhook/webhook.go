@@ -44,9 +44,15 @@ func NewWebHookServer(kubecli kubernetes.Interface, cli versioned.Interface, con
 
 	http.HandleFunc("/statefulsets", route.ServeStatefulSets)
 
+	sCert, err := util.ConfigTLS(context.Cert, context.Key)
+
+	if err != nil {
+		glog.Fatalf("failed to create scert file %v", err)
+	}
+
 	server := &http.Server{
 		Addr:      ":443",
-		TLSConfig: util.ConfigTLS(context.Cert, context.Key),
+		TLSConfig: sCert,
 	}
 
 	return &WebhookServer{

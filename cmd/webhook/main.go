@@ -61,10 +61,12 @@ func main() {
 	go func() {
 		<-sigs
 
+		// FIXME Consider whether delete the configuration when the service is shutdown.
 		if err := webhookServer.UnregisterWebhook(); err != nil {
 			glog.Errorf("fail to delete validating configuration %v", err)
 		}
 
+		// Graceful shutdown the server
 		if err := webhookServer.Shutdown(); err != nil {
 			glog.Errorf("fail to shutdown server %v", err)
 		}

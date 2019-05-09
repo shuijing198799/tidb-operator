@@ -47,7 +47,7 @@ func GetNewClient() (versioned.Interface, kubernetes.Interface, error) {
 
 // toAdmissionResponse is a helper function to create an AdmissionResponse
 // with an embedded error
-func ToAdmissionResponse(err error) *v1beta1.AdmissionResponse {
+func ARFail(err error) *v1beta1.AdmissionResponse {
 	return &v1beta1.AdmissionResponse{
 		Allowed: false,
 		Result: &metav1.Status{
@@ -58,19 +58,19 @@ func ToAdmissionResponse(err error) *v1beta1.AdmissionResponse {
 }
 
 // toAdmissionResponse return allow to action
-func ToAdmissionResponseSuccess() *v1beta1.AdmissionResponse {
+func ARSuccess() *v1beta1.AdmissionResponse {
 	return &v1beta1.AdmissionResponse{
 		Allowed: true,
 	}
 }
 
 // config tls cert for server
-func ConfigTLS(cert []byte, key []byte) *tls.Config {
+func ConfigTLS(cert []byte, key []byte) (*tls.Config, error) {
 	sCert, err := tls.X509KeyPair(cert, key)
 	if err != nil {
-		glog.Fatal(err)
+		return nil, err
 	}
 	return &tls.Config{
 		Certificates: []tls.Certificate{sCert},
-	}
+	}, nil
 }

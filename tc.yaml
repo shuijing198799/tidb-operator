@@ -1,0 +1,77 @@
+  apiVersion: pingcap.com/v1alpha1
+  kind: TidbCluster
+  metadata:
+    name: db
+    namespace: tidb8
+  spec:
+    configUpdateStrategy: RollingUpdate
+    enableTLSCluster: true
+    helper:
+      image: busybox:1.31.1
+    hostNetwork: true
+    imagePullPolicy: IfNotPresent
+    pd:
+      affinity: {}
+      baseImage: pingcap/pd
+      config:
+        log:
+          level: info
+        replication:
+          max-replicas: 3
+      podSecurityContext: {}
+      replicas: 1
+      requests:
+        cpu: "1"
+        memory: 400Mi
+        storage: 1Gi
+      storageClassName: local-storage
+    tidb:
+      affinity: {}
+      baseImage: pingcap/tidb
+      binlogEnabled: false
+      config:
+        log:
+          level: info
+        performance:
+          max-procs: 0
+      enableTLSClient: true
+      maxFailoverCount: 3
+      podSecurityContext: {}
+      replicas: 1
+      requests:
+        cpu: "1"
+        memory: 400Mi
+      separateSlowLog: true
+      service:
+        annotations:
+          pingcap.com/last-applied-configuration: '{"ports":[{"name":"mysql-client","protocol":"TCP","port":4000,"targetPort":4000},{"name":"status","protocol":"TCP","port":10080,"targetPort":10080}],"selector":{"app.kubernetes.io/component":"tidb","app.kubernetes.io/instance":"db","app.kubernetes.io/managed-by":"tidb-operator","app.kubernetes.io/name":"tidb-cluster"},"type":"LoadBalancer","externalTrafficPolicy":"Local"}'
+          service.beta.kubernetes.io/aws-load-balancer-cross-zone-load-balancing-enabled: "true"
+          service.beta.kubernetes.io/aws-load-balancer-internal: 0.0.0.0/0
+          service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        exposeStatus: true
+        externalTrafficPolicy: Local
+        type: LoadBalancer
+      slowLogTailer:
+        limits:
+          cpu: 100m
+          memory: 50Mi
+        requests:
+          cpu: 20m
+          memory: 5Mi
+    tikv:
+      affinity: {}
+      baseImage: pingcap/tikv
+      config:
+        log-level: info
+      hostNetwork: false
+      maxFailoverCount: 3
+      podSecurityContext: {}
+      privileged: false
+      replicas: 1
+      requests:
+        cpu: "1"
+        memory: 1Gi
+        storage: 45Gi
+      storageClassName: local-storage
+    timezone: UTC
+    version: v3.0.8

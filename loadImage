@@ -1,0 +1,16 @@
+kind load docker-image pingcap/tidb-binlog:v3.0.8 --name kind
+kind load docker-image quay.io/external_storage/local-volume-provisioner:v2.3.2 --name kind
+kind load docker-image gcr.io/kubernetes-helm/tiller:v2.9.1 --name kind
+kind load docker-image tnir/mysqlclient:latest --name kind
+kind load docker-image pingcap/pd:latest --name kind
+kind load docker-image pingcap/tidb:latest --name kind
+kind load docker-image pingcap/tikv:latest --name kind
+kind load docker-image busybox:1.26.2 --name kind
+kind load docker-image busybox:1.31.1 --name kind
+kind load docker-image pingcap/tidb-monitor-reloader:v1.0.1 --name kind
+kind load docker-image pingcap/tidb-monitor-initializer:v3.0.8 --name kind
+kind load docker-image grafana/grafana:6.0.1 --name kind
+kind load docker-image prom/prometheus:v2.11.1 --name kind
+kind load docker-image pingcap/tidb-cloud-backup:20191217 --name kind
+kind load docker-image hub.pingcap.net/yinliang/pingcap/tidb-backup-manager:latest --name kind
+kind load docker-image hub.pingcap.net/yinliang/pingcap/tidb-operator:latest --name kind

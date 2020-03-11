@@ -1,0 +1,27 @@
+apiVersion: pingcap.com/v1alpha1
+kind: Backup
+metadata:
+  name: backuptest1
+  namespace: tidb1
+  annotations: 
+    iam.amazonaws.com/role: "arn:aws:iam::385595570414:role/dbaas-kops-jony9-backup"
+spec:
+  br:
+    enableTLSClient: true
+    cluster: db
+    clusterNamespce: tidb1
+    enableTLSClient:  true
+    sendCredToTikv:  false
+  from:
+    host:         172.30.6.56
+    port:         4000
+    secretName:   mysql-pwd-1583753760625221108
+    user:         root
+  s3:
+    provider: aws
+    region: us-west-2
+    bucket: backup.jony9.us-west-2.tidbcloud.com
+    prefix: backup-test
+  useKMS: true
+  storageClassName: local-storage
+  storageSize: 10Gi

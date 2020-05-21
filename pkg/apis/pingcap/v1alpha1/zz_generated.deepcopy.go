@@ -5521,11 +5521,6 @@ func (in *TiKVSecurityConfig) DeepCopyInto(out *TiKVSecurityConfig) {
 		*out = new(string)
 		**out = **in
 	}
-	if in.CipherFile != nil {
-		in, out := &in.CipherFile, &out.CipherFile
-		*out = new(string)
-		**out = **in
-	}
 	if in.Encryption != nil {
 		in, out := &in.Encryption, &out.Encryption
 		*out = new(TiKVSecurityConfigEncryption)

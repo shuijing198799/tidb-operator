@@ -12564,17 +12564,6 @@ string
 </tr>
 <tr>
 <td>
-<code>cipher-file</code></br>
-<em>
-string
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-</td>
-</tr>
-<tr>
-<td>
 <code>encryption</code></br>
 <em>
 <a href="#tikvsecurityconfigencryption">

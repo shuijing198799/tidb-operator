@@ -4272,8 +4272,6 @@ spec:
                           type: string
                         cert-path:
                           type: string
-                        cipher-file:
-                          type: string
                         encryption: {}
                         key-path:
                           type: string

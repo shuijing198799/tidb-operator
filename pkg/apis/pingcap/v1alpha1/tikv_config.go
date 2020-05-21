@@ -229,8 +229,6 @@ type TiKVSecurityConfig struct {
 	// +optional
 	OverrideSslTarget *string `json:"override-ssl-target,omitempty" toml:"override-ssl-target,omitempty"`
 	// +optional
-	CipherFile *string `json:"cipher-file,omitempty" toml:"cipher-file,omitempty"`
-	// +optional
 	Encryption *TiKVSecurityConfigEncryption `json:"encryption,omitempty" toml:"encryption,omitempty"`
 }
 

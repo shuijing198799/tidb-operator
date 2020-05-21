@@ -25,22 +25,7 @@ RUN \
   && rm -rf tidb-toolkit-${TOOLKIT_VERSION}-linux-amd64.tar.gz \
   && rm -rf tidb-toolkit-${TOOLKIT_VERSION}-linux-amd64
 
-RUN \
-  wget -nv https://download.pingcap.org/tidb-toolkit-${TOOLKIT_V31}-linux-amd64.tar.gz \
-  && tar -xzf tidb-toolkit-${TOOLKIT_V31}-linux-amd64.tar.gz \
-  && mv tidb-toolkit-${TOOLKIT_V31}-linux-amd64/bin/br /usr/local/bin/br31 \
-  && chmod 755 /usr/local/bin/br31 \
-  && rm -rf tidb-toolkit-${TOOLKIT_V31}-linux-amd64.tar.gz \
-  && rm -rf tidb-toolkit-${TOOLKIT_V31}-linux-amd64
-
-RUN \
-  wget -nv https://download.pingcap.org/tidb-toolkit-${TOOLKIT_V40}-linux-amd64.tar.gz \
-  && tar -xzf tidb-toolkit-${TOOLKIT_V40}-linux-amd64.tar.gz \
-  && mv tidb-toolkit-${TOOLKIT_V40}-linux-amd64/bin/br /usr/local/bin/br40 \
-  && chmod 755 /usr/local/bin/br40 \
-  && rm -rf tidb-toolkit-${TOOLKIT_V40}-linux-amd64.tar.gz \
-  && rm -rf tidb-toolkit-${TOOLKIT_V40}-linux-amd64
-
+COPY bin/br /usr/local/bin/br40
 COPY bin/tidb-backup-manager /tidb-backup-manager
 COPY entrypoint.sh /entrypoint.sh
 

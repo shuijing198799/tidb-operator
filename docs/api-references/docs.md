@@ -10505,19 +10505,6 @@ TiKVSecurityConfig
 </tr>
 <tr>
 <td>
-<code>encryption</code></br>
-<em>
-<a href="#tikvencryptionconfig">
-TiKVEncryptionConfig
-</a>
-</em>
-</td>
-<td>
-<em>(Optional)</em>
-</td>
-</tr>
-<tr>
-<td>
 <code>pessimistic-txn</code></br>
 <em>
 <a href="#tikvpessimistictxn">
@@ -11098,7 +11085,7 @@ TiKVTitanDBConfig
 <h3 id="tikvencryptionconfig">TiKVEncryptionConfig</h3>
 <p>
 (<em>Appears on:</em>
-<a href="#tikvconfig">TiKVConfig</a>)
+<a href="#tikvsecurityconfigencryptionpreviousmasterkey">TiKVSecurityConfigEncryptionPreviousMasterKey</a>)
 </p>
 <p>
 </p>
@@ -12751,6 +12738,29 @@ string
 <code>type</code></br>
 <em>
 string
+</em>
+</td>
+<td>
+<em>(Optional)</em>
+</td>
+</tr>
+<tr>
+<td>
+<code>cipher-file</code></br>
+<em>
+string
+</em>
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td>
+<code>encryption</code></br>
+<em>
+<a href="#tikvencryptionconfig">
+TiKVEncryptionConfig
+</a>
 </em>
 </td>
 <td>

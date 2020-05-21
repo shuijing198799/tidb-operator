@@ -59,8 +59,6 @@ type TiKVConfig struct {
 	// +optional
 	Security *TiKVSecurityConfig `json:"security,omitempty" toml:"security,omitempty"`
 	// +optional
-	Encryption *TiKVEncryptionConfig `json:"encryption,omitempty" toml:"encryption,omitempty"`
-	// +optional
 	TiKVPessimisticTxn *TiKVPessimisticTxn `json:"pessimistic-txn,omitempty" toml:"pessimistic-txn,omitempty"`
 }
 
@@ -298,7 +296,10 @@ type TiKVSecurityConfigEncryptionMasterKey struct {
 
 type TiKVSecurityConfigEncryptionPreviousMasterKey struct {
 	// +optional
-	Type *string `json:"type" toml:"type,omitempty"`
+	Type       *string `json:"type" toml:"type,omitempty"`
+	CipherFile string  `json:"cipher-file,omitempty" toml:"cipher-file,omitempty"`
+	// +optional
+	Encryption *TiKVEncryptionConfig `json:"encryption,omitempty" toml:"encryption,omitempty"`
 }
 
 // +k8s:openapi-gen=true

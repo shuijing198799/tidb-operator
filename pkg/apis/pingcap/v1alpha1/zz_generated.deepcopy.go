@@ -4564,11 +4564,6 @@ func (in *TiKVConfig) DeepCopyInto(out *TiKVConfig) {
 		*out = new(TiKVSecurityConfig)
 		(*in).DeepCopyInto(*out)
 	}
-	if in.Encryption != nil {
-		in, out := &in.Encryption, &out.Encryption
-		*out = new(TiKVEncryptionConfig)
-		(*in).DeepCopyInto(*out)
-	}
 	if in.TiKVPessimisticTxn != nil {
 		in, out := &in.TiKVPessimisticTxn, &out.TiKVPessimisticTxn
 		*out = new(TiKVPessimisticTxn)
@@ -5613,6 +5608,11 @@ func (in *TiKVSecurityConfigEncryptionPreviousMasterKey) DeepCopyInto(out *TiKVS
 		in, out := &in.Type, &out.Type
 		*out = new(string)
 		**out = **in
+	}
+	if in.Encryption != nil {
+		in, out := &in.Encryption, &out.Encryption
+		*out = new(TiKVEncryptionConfig)
+		(*in).DeepCopyInto(*out)
 	}
 	return
 }
